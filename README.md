@@ -30,3 +30,10 @@
 ```bash
 ./deploy.sh 
 ```
+
+
+```bash
+aws-vault exec hc-root-admin -- terragrunt force-unlock -force <lock number>
+aws-vault exec hc-root-admin -- terragrunt destroy --terragrunt-source-update
+```
+
