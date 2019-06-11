@@ -1,4 +1,5 @@
 data "aws_caller_identity" "this" {}
+data "aws_region" "this" {}
 
 locals {
   common_tags = "${map(
@@ -6,14 +7,17 @@ locals {
     "Environment", "${var.environment}"
   )}"
   tags = "${merge(var.tags, local.common_tags)}"
+  terraform_state_bucket = "terraform-states-${data.aws_caller_identity.this.account_id}"
+//  TODO: This might mess things up when switching regions
+  terraform_state_region = "${data.aws_region.this.name}"
 }
 
 data "terraform_remote_state" "vpc" {
   backend = "s3"
   config = {
-    bucket = "${var.terraform_state_bucket}"
+    bucket = "${local.terraform_state_bucket}"
     key = "${join("/", list(var.region, "vpc", "terraform.tfstate"))}"
-    region = "${var.terraform_state_region}"
+    region = "${local.terraform_state_region}"
   }
 }
 
