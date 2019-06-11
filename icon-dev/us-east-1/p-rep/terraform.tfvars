@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "github.com/robcxyz/terraform-aws-icon-p-rep"
+    source = "../../p-rep-node"
   }
 
   include {
@@ -12,6 +12,4 @@ terragrunt = {
       "../vpc"]
   }
 }
-
-service = "p-rep"
 
