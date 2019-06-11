@@ -8,8 +8,7 @@ locals {
   )}"
   tags = "${merge(var.tags, local.common_tags)}"
   terraform_state_bucket = "terraform-states-${data.aws_caller_identity.this.account_id}"
-//  TODO: This might mess things up when switching regions
-  terraform_state_region = "${data.aws_region.this.name}"
+  terraform_state_region = "${var.terraform_state_region}"
 }
 
 data "terraform_remote_state" "vpc" {

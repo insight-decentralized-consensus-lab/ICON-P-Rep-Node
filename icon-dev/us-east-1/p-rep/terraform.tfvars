@@ -13,3 +13,4 @@ terragrunt = {
   }
 }
 
+resource_group = "p-rep-nodes"
