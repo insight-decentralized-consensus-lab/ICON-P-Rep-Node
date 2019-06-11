@@ -31,9 +31,28 @@
 ./deploy.sh 
 ```
 
-
 ```bash
 aws-vault exec hc-root-admin -- terragrunt force-unlock -force <lock number>
 aws-vault exec hc-root-admin -- terragrunt destroy --terragrunt-source-update
 ```
+## Infrastructure 
+    
+### VPC 
+
+Two 
+
+### Security Groups 
+
+
+### P-Rep Autoscaling Groups 
+
+
+### IAM Roles 
+
+Several roles that can be assumed or given to users or groups within and across accounts. 
+
+- read
+- write 
+- destroy 
+- audit - TODO
 
