@@ -30,3 +30,25 @@
 ```bash
 ./deploy.sh 
 ```
+
+## Infrastructure 
+
+### VPC 
+
+Two 
+
+### Security Groups 
+
+
+### P-Rep Autoscaling Groups 
+
+
+### IAM Roles 
+
+Several roles that can be assumed or given to users or groups within and across accounts. 
+
+- read
+- write 
+- destroy 
+- audit - TODO
+
