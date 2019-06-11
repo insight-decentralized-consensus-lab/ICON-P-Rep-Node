@@ -4,8 +4,8 @@ terraform_state_bucket = "874898202111-tfstate"
 terraform_state_region = "us-east-1"
 cluster_id = "icon"
 
-
-
+region = "us-east-1"
+environment = "dev"
 
 azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
