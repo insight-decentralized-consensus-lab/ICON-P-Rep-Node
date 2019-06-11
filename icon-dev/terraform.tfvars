@@ -16,12 +16,12 @@ terragrunt = {
 
     after_hook "copy_common_main_variables" {
       commands = ["init-from-module"]
-      execute  = ["cp", "${get_parent_tfvars_dir()}/common/main_variables.tf", "."]
+      execute  = ["cp", "${get_parent_tfvars_dir()}/common/common_variables.tf", "."]
     }
 
     after_hook "copy_common_main_providers" {
       commands = ["init-from-module"]
-      execute  = ["cp", "${get_parent_tfvars_dir()}/common/main_providers.tf", "."]
+      execute  = ["cp", "${get_parent_tfvars_dir()}/common/common_providers.tf", "."]
     }
   }
 
