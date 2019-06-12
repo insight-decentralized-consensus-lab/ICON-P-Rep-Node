@@ -20,7 +20,7 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-resource "aws_security_group" "p-rep" {
+resource "aws_security_group" "p_rep" {
   name = "p-rep-sg"
   vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
   description = "Security group for p rep nodes"
@@ -52,37 +52,37 @@ resource "aws_security_group" "p-rep" {
 
 // This wasn't working because of multiple sg rules overlapping. I'm sure there is an easy fix for this
 
-//resource "aws_security_group" "p-rep" {
-//  name = "p-rep-sg"
+//resource "aws_security_group" "keys" {
+//  name = "keys-sg"
 //  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
 //  description = "Security group for p rep nodes"
 //
 //  tags = "${local.tags}"
 //}
 //
-//resource "aws_security_group_rule" "p-rep-ingress-9000" {
+//resource "aws_security_group_rule" "keys-ingress-9000" {
 //  type = "ingress"
 //  description = "things"
-//  security_group_id = "[${aws_security_group.p-rep.id}]"
+//  security_group_id = "[${aws_security_group.keys.id}]"
 //  cidr_blocks = ["0.0.0.0/0"]
 //  from_port = 9000
 //  to_port = 9000
 //  protocol = "tcp"
 //}
 //
-//resource "aws_security_group_rule" "p-rep-ingress-7100" {
+//resource "aws_security_group_rule" "keys-ingress-7100" {
 //  description = "stuff"
 //  type = "ingress"
-//  security_group_id = "[${aws_security_group.p-rep.id}]"
+//  security_group_id = "[${aws_security_group.keys.id}]"
 //  cidr_blocks = ["0.0.0.0/0"]
 //  from_port = 7100
 //  to_port = 7100
 //  protocol = "tcp"
 //}
 //
-//resource "aws_security_group_rule" "p-rep-egress" {
+//resource "aws_security_group_rule" "keys-egress" {
 //  type = "egress"
-//  security_group_id = "${aws_security_group.p-rep.id}"
+//  security_group_id = "${aws_security_group.keys.id}"
 //  from_port = 0
 //  to_port = 0
 //  protocol = "-1"

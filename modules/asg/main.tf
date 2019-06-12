@@ -45,7 +45,6 @@ data "aws_ami" "amazon-linux-2" {
 }
 
 resource "template_file" "user_data" {
-  count    = "${length(var.private_subnets)}"
   template = "${file("${path.module}/data/user_data.sh")}"
   vars {
     region = "${var.region}"
@@ -94,19 +93,69 @@ resource "aws_key_pair" "key_tf" {
   key_name = "${local.name}"
   public_key = "${data.local_file.key_pub.content}"
 }
+//
+//module "asg" {
+//  source  = "terraform-aws-modules/autoscaling/aws"
+//  version = "~> v2.0"
+//
+//  name = "service"
+//
+//  # Launch configuration
+//  lc_name = "${local.name}"
+//
+//  image_id        = "${data.aws_ami.amazon-linux-2.image_id}"
+//  instance_type   = "${var.instance_type}"
+//  security_groups = "${list(data.terraform_remote_state.security_groups.security_group_id)}"
+//
+//  ebs_block_device = [
+//    {
+//      device_name           = "/dev/xvdz"
+//      volume_type           = "gp2"
+//      volume_size           = "${var.volume_size}"
+//      delete_on_termination = true
+//    },
+//  ]
+//
+//  root_block_device = [
+//    //      TODO FIX THIS LATER
+//    {
+//      volume_size = "50"
+//      volume_type = "gp2"
+//      delete_on_termination = true
+//    },
+//  ]
+//
+//  # Auto scaling group
+//  asg_name                  = "${local.name}"
+//  vpc_zone_identifier       = "${data.terraform_remote_state.vpc.private_subnets}"
+//  health_check_type         = "EC2"
+//  min_size                  = 0
+//  max_size                  = 1
+//  desired_capacity          = 1
+//  wait_for_capacity_timeout = 0
+//
+//  tags_as_map = "${var.tags}"
+//}
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> v2.0"
+  version = "~> 2.0"
 
   name = "service"
 
   # Launch configuration
-  lc_name = "${local.name}"
+  lc_name = "example-lc"
+
+//  image_id        = "ami-ebd02392"
+//  instance_type   = "t2.micro"
+//  security_groups = ["sg-12345678"]
 
   image_id        = "${data.aws_ami.amazon-linux-2.image_id}"
   instance_type   = "${var.instance_type}"
   security_groups = "${list(data.terraform_remote_state.security_groups.security_group_id)}"
+
+  user_data = "${template_file.user_data.rendered}"
+  key_name = "${aws_key_pair.key_tf.key_name}"
 
   ebs_block_device = [
     {
@@ -118,11 +167,9 @@ module "asg" {
   ]
 
   root_block_device = [
-    //      TODO FIX THIS LATER
     {
       volume_size = "50"
       volume_type = "gp2"
-      delete_on_termination = true
     },
   ]
 
@@ -131,9 +178,22 @@ module "asg" {
   vpc_zone_identifier       = "${data.terraform_remote_state.vpc.private_subnets}"
   health_check_type         = "EC2"
   min_size                  = 0
-  max_size                  = 1
+  max_size                  = 2
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
+
+  tags = [
+    {
+      key                 = "Environment"
+      value               = "dev"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "Project"
+      value               = "megasecret"
+      propagate_at_launch = true
+    },
+  ]
 
   tags_as_map = "${var.tags}"
 }
