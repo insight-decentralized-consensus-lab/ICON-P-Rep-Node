@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//keys"
+    source = "../../../modules//asg"
   }
 
   include {
@@ -13,4 +13,6 @@ terragrunt = {
   }
 }
 
-resource_group = "keys"
+resource_group = "asg"
+volume_size = 50
+instance_type = "t2.micro"
