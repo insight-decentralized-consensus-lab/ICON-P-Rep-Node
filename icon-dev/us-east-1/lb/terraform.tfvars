@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//elb"
+    source = "../../../modules//lb"
   }
 
   include {

@@ -83,8 +83,7 @@ resource "aws_launch_configuration" "this" {
   user_data = "${file("${path.module}/data/user_data_ubuntu.sh")}"
   key_name = "${data.terraform_remote_state.keys.key_name}"
 
-//  security_groups = []
-
+  security_groups = "${data.terraform_remote_state.security_groups.security_group_ids}"
 }
 
 resource "aws_autoscaling_group" "this" {

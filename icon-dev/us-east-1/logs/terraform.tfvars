@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//lb"
+    source = "../../../modules//logs"
   }
 
   include {
@@ -13,4 +13,6 @@ terragrunt = {
   }
 }
 
-resource_group = "elb"
+resource_group = "logs"
+lb_logs_path = "lb-logs"
+s3_logs_path = "s3-logs"
