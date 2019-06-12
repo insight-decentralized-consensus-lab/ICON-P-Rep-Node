@@ -20,71 +20,85 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-resource "aws_security_group" "p_rep" {
-  name = "p-rep-sg"
+resource "aws_security_group" "rest" {
+  name = "rest"
   vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
-  description = "Security group for p rep nodes"
+  description = "Security group for rest api on p rep nodes"
 
   tags = "${local.tags}"
-
-  ingress {
-    from_port = 9000
-    protocol = "tcp"
-    to_port = 9000
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port = 7100
-    protocol = "tcp"
-    to_port = 7100
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port = 0
-    protocol = "tcp"
-    to_port = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
 }
 
-// This wasn't working because of multiple sg rules overlapping. I'm sure there is an easy fix for this
+resource "aws_security_group_rule" "rest_ingress" {
+  type = "ingress"
+  security_group_id = "${aws_security_group.rest.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+  from_port = 9000
+  to_port = 9000
+  protocol = "tcp"
+}
 
-//resource "aws_security_group" "keys" {
-//  name = "keys-sg"
+resource "aws_security_group_rule" "rest_egress" {
+  type = "egress"
+  security_group_id = "${aws_security_group.rest.id}"
+  from_port = 0
+  to_port = 0
+  protocol = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group" "grpc" {
+  name = "grpc"
+  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
+  description = "Security group for grpc communication on p rep nodes"
+
+  tags = "${local.tags}"
+}
+
+resource "aws_security_group_rule" "grpc_egress" {
+  type = "egress"
+  security_group_id = "${aws_security_group.grpc.id}"
+  from_port = 0
+  to_port = 0
+  protocol = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "grpc_ingress" {
+  type = "ingress"
+  security_group_id = "${aws_security_group.grpc.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+  from_port = 7100
+  to_port = 7100
+  protocol = "tcp"
+}
+
+
+//resource "aws_security_group" "p_rep" {
+//  name = "p-rep-sg"
 //  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
 //  description = "Security group for p rep nodes"
 //
 //  tags = "${local.tags}"
-//}
 //
-//resource "aws_security_group_rule" "keys-ingress-9000" {
-//  type = "ingress"
-//  description = "things"
-//  security_group_id = "[${aws_security_group.keys.id}]"
-//  cidr_blocks = ["0.0.0.0/0"]
-//  from_port = 9000
-//  to_port = 9000
-//  protocol = "tcp"
-//}
+//  ingress {
+//    from_port = 9000
+//    protocol = "tcp"
+//    to_port = 9000
+//    cidr_blocks = ["0.0.0.0/0"]
+//  }
 //
-//resource "aws_security_group_rule" "keys-ingress-7100" {
-//  description = "stuff"
-//  type = "ingress"
-//  security_group_id = "[${aws_security_group.keys.id}]"
-//  cidr_blocks = ["0.0.0.0/0"]
-//  from_port = 7100
-//  to_port = 7100
-//  protocol = "tcp"
-//}
+//  ingress {
+//    from_port = 7100
+//    protocol = "tcp"
+//    to_port = 7100
+//    cidr_blocks = ["0.0.0.0/0"]
+//  }
 //
-//resource "aws_security_group_rule" "keys-egress" {
-//  type = "egress"
-//  security_group_id = "${aws_security_group.keys.id}"
-//  from_port = 0
-//  to_port = 0
-//  protocol = "-1"
-//  cidr_blocks = ["0.0.0.0/0"]
+//  egress {
+//    from_port = 0
+//    protocol = "tcp"
+//    to_port = 0
+//    cidr_blocks = ["0.0.0.0/0"]
+//  }
+//
 //}

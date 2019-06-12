@@ -1,3 +1,3 @@
-output "security_group_id" {
-  value = "${aws_security_group.p_rep.id}"
+output "security_group_ids" {
+  value = "${list(aws_security_group.rest.id, aws_security_group.grpc.id)}"
 }
