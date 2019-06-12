@@ -36,6 +36,11 @@ resource "aws_iam_role" "destroy" {
   assume_role_policy = "${file("${path.module}/data/assume_role_policy.json")}"
 }
 
+resource "aws_iam_role" "audit" {
+  name = "${local.name}-audit"
+  assume_role_policy = "${file("${path.module}/data/assume_role_policy.json")}"
+}
+
 resource "template_file" "read" {
   template = "${file("${path.module}/data/read_policy.json")}"
   vars {
@@ -52,6 +57,13 @@ resource "template_file" "write" {
 
 resource "template_file" "destroy" {
   template = "${file("${path.module}/data/destroy_policy.json")}"
+  vars {
+    terraform_state_bucket = "${local.terraform_state_bucket}"
+  }
+}
+
+resource "template_file" "audit" {
+  template = "${file("${path.module}/data/audit_policy.json")}"
   vars {
     terraform_state_bucket = "${local.terraform_state_bucket}"
   }
@@ -75,6 +87,11 @@ resource "aws_iam_role_policy" "destroy" {
   policy = "${template_file.destroy.rendered}"
 }
 
+resource "aws_iam_role_policy" "audit" {
+  name   = "${local.name}-audit"
+  role   = "${aws_iam_role.audit.name}"
+  policy = "${template_file.audit.rendered}"
+}
 
 
 

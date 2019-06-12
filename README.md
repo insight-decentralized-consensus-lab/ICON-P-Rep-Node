@@ -54,21 +54,21 @@ aws-vault exec hc-root-admin -- terragrunt destroy --terragrunt-source-update
 
 ### VPC 
 
-- One vpc per region 
+- One vpc per region with class B network (16 bit mask)
 - Specify number of availability zones and private and public subnets deployed in each AZ
 - Specify the CIDR blocks to be used.  Needs to correspond to each AZ
     - TODO: Make CIDR block calculations dynamic through CIDR calculator and discuss with ICON about standard route tables 
     
-**Example CIDR Blocks:**
+**Example CIDR Blocks: -> these will change**
 
 | Subnet          | CIDR        |
 |-----------------|-------------|
-| public subnet 1 | 10.0.1.0/24 |
-| public subnet 2 | 10.0.1.0/24 |
-| public subnet 3 | 10.0.1.0/24 |
-| private subnet 1 | 10.1.1.0/24 |
-| private subnet 2 | 10.1.2.0/24 |
-| private subnet 3 | 10.1.3.0/24 |
+| public subnet 1 | 10.1.1.0/24 |
+| public subnet 2 | 10.1.2.0/24 |
+| public subnet 3 | 10.1.3.0/24 |
+| private subnet 1 | 10.1.101.0/24 |
+| private subnet 2 | 10.1.102.0/24 |
+| private subnet 3 | 10.1.103.0/24 |
 
 
 ### Security Groups 
@@ -81,7 +81,6 @@ TODO: Finalize SGs and rules
 
 Lots of ways to run application. To understancd more about the different options and the thought process behind choices, please review [these docs](docs/icon-planning.md).  Currently this architecture is focussed on an MVP which will leverage a user-data script to bootstrap the p-rep node on startup.  Over time, a move towards running on ECS could be considered.  For now, the advantages of using kubernetes have been loosely ruled out though that might change. 
 
-- 
 
 ### IAM Roles 
 

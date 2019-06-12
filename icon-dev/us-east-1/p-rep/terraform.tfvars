@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../p-rep-node"
+    source = "../../../modules/p-rep"
   }
 
   include {
@@ -14,3 +14,5 @@ terragrunt = {
 }
 
 resource_group = "p-rep-nodes"
+volume_size = 50
+instance_type = "t2.medium"
