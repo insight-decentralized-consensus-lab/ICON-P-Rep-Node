@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//security-groups"
+    source = "../../../modules//security_groups"
   }
 
   include {

@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//p-rep"
+    source = "../../../modules//keys"
   }
 
   include {
