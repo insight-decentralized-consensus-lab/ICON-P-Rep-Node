@@ -7,12 +7,12 @@ terragrunt = {
     path = "${find_in_parent_folders()}"
   }
 
-  dependencies {
-    paths = [
-      "../vpc",
-      "../security_groups",
-      "../iam"]
-  }
+//  dependencies {
+//    paths = [
+//      "../vpc",
+//      "../security_groups",
+//      "../iam"]
+//  }
 }
 
 resource_group = "logs"

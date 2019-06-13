@@ -11,33 +11,6 @@ locals {
   terraform_state_region = "${var.terraform_state_region}"
 }
 
-data "terraform_remote_state" "vpc" {
-  backend = "s3"
-  config = {
-    bucket = "${local.terraform_state_bucket}"
-    key = "${join("/", list(var.region, "vpc", "terraform.tfstate"))}"
-    region = "${var.terraform_state_region}"
-  }
-}
-
-data "terraform_remote_state" "security_groups" {
-  backend = "s3"
-  config = {
-    bucket = "${local.terraform_state_bucket}"
-    key = "${join("/", list(var.region, "security-groups", "terraform.tfstate"))}"
-    region = "${var.terraform_state_region}"
-  }
-}
-
-data "terraform_remote_state" "iam" {
-  backend = "s3"
-  config = {
-    bucket = "${local.terraform_state_bucket}"
-    key = "${join("/", list(var.region, "iam", "terraform.tfstate"))}"
-    region = "${var.terraform_state_region}"
-  }
-}
-
 resource "aws_s3_bucket" "logs" {
   bucket = "lb-logs-${data.aws_caller_identity.this.account_id}"
 }

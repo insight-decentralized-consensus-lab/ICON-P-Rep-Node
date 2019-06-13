@@ -1,6 +1,3 @@
-
-# WIP - PLEASE BE ADVISED
-
 # ICON P-Rep Node 
 
 ## Pre-Deployment Check List 
@@ -40,20 +37,44 @@ terraform --version
 
 ### Deploy infrastructure 
 
-Deploy all the infrastructure 
-```bash
-./deploy.sh 
-```
+#### Initialize 
+
+**Before deploying any infrastructure, you need to initialize a config file that will hold your account name. **
+
+Run `init.sh` with your account id and select a region to put your terraform remote state files. 
 
 ```bash
-aws-vault exec hc-root-admin -- terragrunt force-unlock -force <lock number>
-aws-vault exec hc-root-admin -- terragrunt destroy --terragrunt-source-update
+./init.sh <aws account id> <region where to put remote state> 
+```
+
+The bucket and a dynamo-db lock table will be created automatically from here on out and you should not have to 
+reference the variables again.  When you move to a production environment, the icon-dev folder will be copy and 
+pasted as icon-prod and the account id will be changed to point to new account. 
+
+#### Deploy all the infrastructure 
+
+Plan 
+```bash
+terragrunt plan-all --terragrunt-source-update
+```
+
+Apply - Clean the cache first 
+```bash
+find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;
+terragrunt apply-all --terragrunt-source-update
+```
+
+If you run into locking issues. 
+```bash
+terragrunt force-unlock -force <lock number>
+```
+
+Destroy - This is real and can't be undone 
+```bash
+terragrunt destroy-all --terragrunt-source-update
 ```
 
 ## Infrastructure 
-
-# WIP - THIS DIAGRAM IS WRONG AND IN FLUX
-![](docs/static/architecture.png)
 
 ### VPC 
 
@@ -80,11 +101,6 @@ aws-vault exec hc-root-admin -- terragrunt destroy --terragrunt-source-update
 
 TODO: Finalize SGs and rules 
 
-### P-Rep Node 
-
-Lots of ways to run application. To understancd more about the different options and the thought process behind choices, please review [these docs](docs/icon-planning.md).  Currently this architecture is focussed on an MVP which will leverage a user-data script to bootstrap the p-rep node on startup.  Over time, a move towards running on ECS could be considered.  For now, the advantages of using kubernetes have been loosely ruled out though that might change. 
-
-
 ### IAM Roles 
 
 Several roles that can be assumed or given to users or groups within and across accounts. 
@@ -93,4 +109,19 @@ Several roles that can be assumed or given to users or groups within and across 
 - write 
 - destroy 
 - audit - TODO
+
+### Keys 
+
+TODO: Update docs to reflect dynamic key importing and options 
+
+### Logs 
+
+TODO: WIP
+
+S3 buckets are created with appropriate bucket policies to allow the IAM 
+
+### Auto Scaling Groups 
+
+Lots of ways to run application. To understand more about the different options and the thought process behind choices, please review [these docs](docs/icon-planning.md).  Currently this architecture is focussed on an MVP which will leverage a user-data script to bootstrap the p-rep node on startup.  Over time, a move towards running on ECS could be considered.  For now, the advantages of using kubernetes have been loosely ruled out though that might change. 
+
 
