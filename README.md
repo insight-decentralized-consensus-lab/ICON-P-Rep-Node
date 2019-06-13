@@ -1,4 +1,6 @@
 
+# WIP - PLEASE BE ADVISED
+
 # ICON P-Rep Node 
 
 ## Pre-Deployment Check List 
@@ -50,6 +52,7 @@ aws-vault exec hc-root-admin -- terragrunt destroy --terragrunt-source-update
 
 ## Infrastructure 
 
+# WIP - THIS DIAGRAM IS WRONG AND IN FLUX
 ![](docs/static/architecture.png)
 
 ### VPC 
