@@ -9,7 +9,7 @@ terragrunt = {
 
   dependencies {
     paths = [
-      "../vpc"]
+      "../iam"]
   }
 }
 

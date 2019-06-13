@@ -9,7 +9,10 @@ terragrunt = {
 
   dependencies {
     paths = [
-      "../vpc"]
+      "../vpc",
+      "../logs",
+      "../security_groups",
+      "../keys"]
   }
 }
 
