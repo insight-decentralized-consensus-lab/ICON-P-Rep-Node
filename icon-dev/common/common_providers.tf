@@ -1,4 +1,5 @@
 provider "aws" {
+//  version = "${prvider_version}"
   region              = "${var.aws_region}"
   allowed_account_ids = ["${var.aws_allowed_account_ids}"]
 
