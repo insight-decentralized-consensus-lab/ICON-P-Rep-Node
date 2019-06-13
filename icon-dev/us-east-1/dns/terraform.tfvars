@@ -13,6 +13,7 @@ terragrunt = {
   }
 }
 
-resource_group = "asg"
-volume_size = 50
-instance_type = "t2.micro"
+resource_group = "dns"
+
+root_domain_name = "solidwallet.io"
+subdomain = "insight"

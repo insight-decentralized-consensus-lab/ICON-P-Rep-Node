@@ -11,46 +11,54 @@ locals {
   terraform_state_region = "${var.terraform_state_region}"
 }
 
-resource "tls_private_key" "key" {
-  algorithm = "RSA"
+
+resource "aws_route53_zone" "root" {
+  name = "${var.root_domain_name}."
 }
 
-resource "local_file" "key_priv" {
-  content  = "${tls_private_key.key.private_key_pem}"
-  filename = "${path.module}/id_rsa"
+resource "aws_route53_zone" "subdomain" {
+  name = "${var.subdomain}.${var.root_domain_name}."
 }
 
+resource "aws_route53_record" "subdomain_root_records" {
+  zone_id = "${aws_route53_zone.root.zone_id}"
+  name = "${var.subdomain}.${var.root_domain_name}"
+  type    = "NS"
+  ttl     = "30"
 
-resource "null_resource" "key_chown" {
-  provisioner "local-exec" {
-    command = "chmod 400 ${path.module}/id_rsa"
+  records = [
+    "${aws_route53_zone.root.name_servers.0}",
+    "${aws_route53_zone.root.name_servers.1}",
+    "${aws_route53_zone.root.name_servers.2}",
+    "${aws_route53_zone.root.name_servers.3}",
+  ]
+}
+
+//                                                    Cert
+
+resource "aws_acm_certificate" "certificate" {
+//  domain_name = ".${var.root_domain_name}"
+  domain_name = "${var.subdomain}.${var.root_domain_name}"
+  validation_method = "DNS"
+  subject_alternative_names = ["*.${var.subdomain}.${var.root_domain_name}"]
+
+  lifecycle {
+    create_before_destroy = true
   }
-
-  triggers {
-    always_run = "${timestamp()}"
-  }
-  depends_on = ["local_file.key_priv"]
 }
 
-// TODO: This needs to have some logic to import existing keys and export to anywhere
-resource "null_resource" "key_gen" {
-  provisioner "local-exec" {
-    command = "ssh-keygen -y -f ${path.module}/id_rsa > ${path.module}/id_rsa.pub"
-  }
-
-  triggers {
-    always_run = "${timestamp()}"
-  }
-  depends_on = ["local_file.key_priv"]
+resource "aws_acm_certificate_validation" "default" {
+  certificate_arn = "${aws_acm_certificate.certificate.arn}"
+  validation_record_fqdns = [
+    "${aws_route53_record.cert_validation.fqdn}",
+  ]
 }
 
-data "local_file" "key_pub" {
-  filename = "${path.module}/id_rsa.pub"
-
-  depends_on = ["null_resource.key_gen"]
-}
-
-resource "aws_key_pair" "key" {
-  key_name = "${local.name}"
-  public_key = "${data.local_file.key_pub.content}"
+resource "aws_route53_record" "cert_validation" {
+  name = "${aws_acm_certificate.certificate.domain_validation_options.0.resource_record_name}"
+  type = "${aws_acm_certificate.certificate.domain_validation_options.0.resource_record_type}"
+  zone_id = "${aws_route53_zone.root.zone_id}"
+  records = [
+    "${aws_acm_certificate.certificate.domain_validation_options.0.resource_record_value}"]
+  ttl = 60
 }

@@ -26,5 +26,6 @@ services:
           ports:
                - 9000:9000
                - 7100:7100
+
 EOF
 /usr/local/bin/docker-compose -f /home/ubuntu/docker-compose.yml up -d

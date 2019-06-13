@@ -19,3 +19,7 @@ variable "volume_size" {}
 variable "terraform_state_region" {
   description = "AWS region used for Terraform states"
 }
+
+
+variable "root_domain_name" {}
+variable "subdomain" {}
