@@ -1,3 +1,6 @@
+root_domain_name = "solidwallet.io"
+subdomain = "insight"
+
 aws_region = "us-east-1"
 cluster_id = "icon"
 

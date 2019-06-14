@@ -125,3 +125,18 @@ S3 buckets are created with appropriate bucket policies to allow the IAM
 Lots of ways to run application. To understand more about the different options and the thought process behind choices, please review [these docs](docs/icon-planning.md).  Currently this architecture is focussed on an MVP which will leverage a user-data script to bootstrap the p-rep node on startup.  Over time, a move towards running on ECS could be considered.  For now, the advantages of using kubernetes have been loosely ruled out though that might change. 
 
 
+## Gotchas
+
+### Changing folder names
+
+The names of the folders within the configuration directory (icon-dev) can't be changed when the module has been 
+deployed as the name of the folder is repeated in the keys in s3 to the state file.  Make sure to migrate the state 
+if you have a live deployment and want to change the name of any folders / move them in directory tree.
+
+### Don't Use aws-vault with IAM Modifications 
+
+[Source](https://github.com/99designs/aws-vault/issues/266#issuecomment-404738205)
+
+AWS does not allow IAM operations with an assumed role unless it's authenticated with an MFA
+
+

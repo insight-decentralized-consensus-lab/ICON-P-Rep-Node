@@ -24,3 +24,6 @@ variable "lb_logs_path" {
 variable "s3_logs_path" {
   type = "string"
 }
+
+
+variable "log_bucket_region" {}

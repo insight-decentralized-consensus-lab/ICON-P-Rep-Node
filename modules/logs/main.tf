@@ -11,34 +11,37 @@ locals {
   terraform_state_region = "${var.terraform_state_region}"
 }
 
-resource "aws_s3_bucket" "logs" {
-  bucket = "lb-logs-${data.aws_caller_identity.this.account_id}"
+resource "aws_s3_bucket" "this" {
+  bucket        = "${local.name}-${data.aws_caller_identity.this.account_id}"
+  region        = "${var.log_bucket_region}"
+  force_destroy = true
+  //  TODO: FIX ^^ in prod
+//  Will also need to expose these logs over endpoint presumably
 }
 
-data "aws_iam_policy_document" "logs_bucket_policy" {
+resource "aws_s3_bucket_policy" "this" {
+  bucket = "${aws_s3_bucket.this.id}"
 
-  statement {
-    sid       = "Allow LB to write logs"
-    actions   = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::${aws_s3_bucket.logs.bucket}/${var.lb_logs_path}*"]
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.this.account_id}:lb"]
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::${aws_s3_bucket.this.bucket}",
+        "arn:aws:s3:::${aws_s3_bucket.this.bucket}/*"
+      ]
     }
-  }
-
-  statement {
-    sid       = "Permit access log delivery by AWS ID for Log Delivery service"
-    actions   = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::${aws_s3_bucket.logs.bucket}/${var.s3_logs_path}*"]
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.this.account_id}:audit"]
-    }
-  }
+  ]
 }
-
-resource "aws_s3_bucket_policy" "logs" {
-  bucket = "${aws_s3_bucket.logs.bucket}"
-  policy = "${data.aws_iam_policy_document.logs_bucket_policy.json}"
+POLICY
 }

@@ -24,7 +24,7 @@ data "terraform_remote_state" "security_groups" {
   backend = "s3"
   config = {
     bucket = "${local.terraform_state_bucket}"
-    key = "${join("/", list(var.region, "security-groups", "terraform.tfstate"))}"
+    key = "${join("/", list(var.region, "security_groups", "terraform.tfstate"))}"
     region = "${var.terraform_state_region}"
   }
 }
@@ -82,14 +82,11 @@ resource "aws_launch_configuration" "this" {
   instance_type = "${var.instance_type}"
   user_data = "${file("${path.module}/data/user_data_ubuntu.sh")}"
   key_name = "${data.terraform_remote_state.keys.key_name}"
-
-  security_groups = "${data.terraform_remote_state.security_groups.security_group_ids}"
+  security_groups = ["${data.terraform_remote_state.security_groups.security_group_ids}"]
 }
 
 resource "aws_autoscaling_group" "this" {
-
   name = "${local.name}"
-
   vpc_zone_identifier = ["${data.terraform_remote_state.vpc.private_subnets}"]
 
   desired_capacity   = 1
@@ -97,7 +94,6 @@ resource "aws_autoscaling_group" "this" {
   min_size           = 1
 
   launch_configuration = "${aws_launch_configuration.this.id}"
-
 }
 
 //module "asg" {

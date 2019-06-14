@@ -27,31 +27,7 @@
       "Action": [
         "s3:Get*"
       ],
-      "Resource": [
-        "arn:aws:s3:::${terraform_remote_state_bucket}/robc.rocks/addons/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:Get*"
-      ],
-      "Resource": "arn:aws:s3:::${terraform_state_bucket}/robc.rocks/pki/private/calico-client/*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:GetRepositoryPolicy",
-        "ecr:DescribeRepositories",
-        "ecr:ListImages",
-        "ecr:BatchGetImage"
-      ],
-      "Resource": [
-        "*"
-      ]
+      "Resource": "arn:aws:s3:::${terraform_state_bucket}/*"
     }
   ]
 }

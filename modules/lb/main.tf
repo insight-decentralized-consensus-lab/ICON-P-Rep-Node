@@ -47,107 +47,60 @@ data "terraform_remote_state" "logs" {
   }
 }
 
-//resource "aws_lb" "this" {
-//  name               = "${local.name}"
-//  load_balancer_type = "network"
-//
-////  TODO: THis can be made dynamic with HCL2 - https://stackoverflow.com/questions/49284508/dynamic-subnet-mappings-for-aws-lb
-//  subnet_mapping {
-//    subnet_id     = "${data.terraform_remote_state.vpc.subnet_ids[0]}"
-//    allocation_id = "${aws_eip.example1.id}"
-//  }
-//
-//  subnet_mapping {
-//    subnet_id     = "${aws_subnet.example2.id}"
-//    allocation_id = "${aws_eip.example2.id}"
-//  }
-//}
-//resource "aws_lb_listener" "rest" {
-//    load_balancer_arn = "${aws_lb.this.arn}"
-//    port              = 8500
-//    protocol          = "TCP"
-//
-//    default_action {
-//        target_group_arn = "${aws_lb_target_group.consul.arn}"
-//        type             = "forward"
-//    }
-//}
-
-resource "aws_alb_target_group" "rest_target_group" {
-  name     = "${local.name}"
-  port     = "${var.rest_port}"
-  protocol = "HTTP"
-  vpc_id   = "${data.terraform_remote_state.vpc.vpc_id}"
-  tags {
-    name = "rest-${local.name}-target-group"
-  }
-  stickiness {
-    type            = "lb_cookie"
-    cookie_duration = 1800
-    enabled         = "${var.rest_target_group_sticky}"
-  }
-  health_check {
-    healthy_threshold   = 3
-    unhealthy_threshold = 10
-    timeout             = 5
-    interval            = 10
-    path                = "${var.rest_target_group_path}"
-    port                = "${var.rest_target_group_port}"
+data "terraform_remote_state" "dns" {
+  backend = "s3"
+  config = {
+    bucket = "${local.terraform_state_bucket}"
+    key = "${join("/", list(var.region, "dns", "terraform.tfstate"))}"
+    region = "${var.terraform_state_region}"
   }
 }
 
-resource "aws_alb" "alb" {
-  name            = "${local.name}"
-  subnets         = "${}"
-  security_groups = "${data.terraform_remote_state.security_groups.security_group_ids}"
+
+module "elb_http" {
+  source  = "terraform-aws-modules/elb/aws"
+  version = "~> 2.0"
+
+  name = "elb-example"
+
+  subnets         = ["subnet-12345678", "subnet-87654321"]
+  security_groups = ["sg-12345678"]
   internal        = false
 
-  access_logs {
-    bucket = "${data.terraform_remote_state.logs.logs_bucket}"
-    prefix = "lb-logs"
+  listener = [
+    {
+      instance_port     = "80"
+      instance_protocol = "HTTP"
+      lb_port           = "80"
+      lb_protocol       = "HTTP"
+    },
+    {
+      instance_port     = "8080"
+      instance_protocol = "http"
+      lb_port           = "8080"
+      lb_protocol       = "http"
+      ssl_certificate_id = "${data.terraform_remote_state.dns.cert_arn}"
+    },
+  ]
+
+  health_check = {
+    target              = "HTTP:80/"
+    interval            = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
   }
-}
 
-resource "aws_alb_listener" "rest_listener" {
-  load_balancer_arn = "${aws_alb.alb.arn}"
-  port              = "${var.rest_listener_port}"
-  protocol          = "tcp"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.alb_target.arn}"
-    type             = "forward"
+  access_logs = {
+    bucket = "my-access-logs-bucket"
   }
-}
 
-resource "aws_alb_listener" "grpc_listener" {
-  load_balancer_arn = "${aws_alb.alb.arn}"
-  port              = "${var.grpc_listener_port}"
-  protocol          = "tcp"
+  // ELB attachments
+  number_of_instances = 2
+  instances           = ["i-06ff41a77dfb5349d", "i-4906ff41a77dfb53d"]
 
-  default_action {
-    target_group_arn = "${aws_alb_target_group.alb_target.arn}"
-    type             = "forward"
+  tags = {
+    Owner       = "user"
+    Environment = "dev"
   }
-}
-
-
-resource "aws_alb_listener_rule" "listener_rule" {
-  depends_on   = ["aws_alb_target_group.alb_target_group"]
-  listener_arn = "${aws_alb_listener.alb_listener.arn}"
-  priority     = "${var.priority}"
-  action {
-    type             = "forward"
-    target_group_arn = "${aws_alb_target_group.alb_target_group.id}"
-  }
-  condition {
-    field  = "path-pattern"
-    values = ["${var.alb_path}"]
-  }
-}
-
-
-
-resource "aws_autoscaling_attachment" "svc_asg_external2" {
-  alb_target_group_arn   = "${aws_alb_target_group.alb_target_group.arn}"
-  autoscaling_group_name = "${aws_autoscaling_group.svc_asg.id}"
 }
