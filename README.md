@@ -35,9 +35,9 @@ terraform --version
     - export the appropriate AWS_SECRET_ACCESS_KEY environment variables for the account you are trying to deploy to
     - aws-vault is a nice tool to have here as demonstrated in manual deployment options 
 
-### Deploy infrastructure 
+## Deploy infrastructure 
 
-#### Initialize 
+### Initialize 
 
 **Before deploying any infrastructure, you need to initialize a config file that will hold your account name. **
 
@@ -51,27 +51,34 @@ The bucket and a dynamo-db lock table will be created automatically from here on
 reference the variables again.  When you move to a production environment, the icon-dev folder will be copy and 
 pasted as icon-prod and the account id will be changed to point to new account. 
 
-#### Deploy all the infrastructure 
+### Deploy all the infrastructure 
 
-Plan 
+When in development, it is best practive to clean the cache between runs. 
 ```bash
+./clean-cache.sh
+```
+
+Plan - Make sure it works. Will throw an error in some remote state references. Ignore these errors. 
+```bash
+cd icon-dev/us-east-1
 terragrunt plan-all --terragrunt-source-update
 ```
 
-Apply - Clean the cache first 
+Apply - Download all the modules / providers 
 ```bash
-find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;
+cd icon-dev/us-east-1
 terragrunt apply-all --terragrunt-source-update
+```
+
+Destroy - This is real and can't be undone 
+```bash
+cd icon-dev/us-east-1
+terragrunt destroy-all --terragrunt-source-update
 ```
 
 If you run into locking issues. 
 ```bash
 terragrunt force-unlock -force <lock number>
-```
-
-Destroy - This is real and can't be undone 
-```bash
-terragrunt destroy-all --terragrunt-source-update
 ```
 
 ## Infrastructure 
@@ -135,8 +142,6 @@ if you have a live deployment and want to change the name of any folders / move 
 
 ### Don't Use aws-vault with IAM Modifications 
 
-[Source](https://github.com/99designs/aws-vault/issues/266#issuecomment-404738205)
-
-AWS does not allow IAM operations with an assumed role unless it's authenticated with an MFA
+[Source](https://github.com/99designs/aws-vault/issues/266#issuecomment-404738205) - AWS does not allow IAM operations with an assumed role unless it's authenticated with an MFA
 
 
