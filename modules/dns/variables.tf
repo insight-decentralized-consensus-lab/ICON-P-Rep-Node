@@ -16,3 +16,7 @@ variable "terraform_state_region" {
 
 variable "root_domain_name" {}
 variable "subdomain" {}
+
+variable "icon_domain_name" {}
+variable "endpoint_subdomain" {}
+variable "tracker_subdomain" {}

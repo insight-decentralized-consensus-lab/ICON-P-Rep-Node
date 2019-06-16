@@ -105,6 +105,33 @@ resource "aws_autoscaling_group" "this" {
   launch_configuration = "${aws_launch_configuration.this.id}"
 }
 
+resource "aws_eip" "this" {
+  vpc = "${data.terraform_remote_state.vpc.vpc_id}"
+  instance = "${aws_instance.this.id}"
+
+  lifecycle {
+      prevent_destroy = "true"
+  }
+}
+
+resource "aws_instance" "this" {
+  ami = "${data.aws_ami.ubuntu.id}"
+  instance_type = "${var.instance_type}"
+  user_data = "${file("${path.module}/data/user_data_ubuntu.sh")}"
+  key_name = "${data.terraform_remote_state.keys.key_name}"
+
+  subnet_id = "${data.terraform_remote_state.vpc.public_subnets[0]}"
+
+  security_groups = ["${data.terraform_remote_state.security_groups.security_group_ids}"]
+
+  ebs_block_device = {
+      device_name           = "/dev/xvdz"
+      volume_type           = "gp2"
+      volume_size           = "${var.volume_size}"
+      delete_on_termination = true
+  }
+}
+
 //module "asg" {
 //  source  = "terraform-aws-modules/autoscaling/aws"
 //  version = "~> 2.0"

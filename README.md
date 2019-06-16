@@ -1,5 +1,17 @@
 # ICON P-Rep Node 
 
+Automated deployment of a public representative node for the ICON Blockchain Foundation. 
+Built with helper scripts to deploy entire infrastructure within 3 commands. 
+Still a WIP waiting on guidance on certain aspects of the networking. 
+Repo structure can easily be cloned to deploy nodes in any region. 
+Can easily push changes from a dev to prod environment by simply copy and pasting 
+the `icon-dev` folder and changing the relevant variables. 
+
+TODO: 
+- Determine if ALB is needed
+- Service discovery 
+    - Domain whitelisting 
+
 ## Pre-Deployment Check List 
 
 - Initialize account
@@ -13,6 +25,7 @@
     - You only need to have admin privileges once as we initialize the account.  
     - Afterwards we revoke the role used to deploy all the resources and setup roles that we will use later to update 
     the resources.
+    
 
 ### Setup local environment 
 
@@ -83,7 +96,19 @@ If you run into locking issues.
 terragrunt force-unlock -force <lock number>
 ```
 
+## Register with ICON
+
+TODO 
+
+### EIP Registration 
+
+
+
 ## Infrastructure 
+
+### EIP 
+
+This is an open topic in how to handle this.  See gotcha below.
 
 ### VPC 
 
@@ -121,7 +146,10 @@ Several roles that can be assumed or given to users or groups within and across 
 
 ### Keys 
 
-TODO: Update docs to reflect dynamic key importing and options 
+Unless otherwise specified in the `local_key_file` variable, then the deployment generates a key and keeps it in cache.  
+This needs to be improved. 
+
+TODO: Input logic to persist generated key to local folder with name. 
 
 ### Logs 
 
@@ -150,3 +178,8 @@ if you have a live deployment and want to change the name of any folders / move 
 
 Normally you only need to set `AWS_DEFAULT_PROFILE=xxx` to get into credentials but in terragrunt you also need to set `AWS_PROFILE=xxx` to get it to recogize the profile in `~/.aws/credentials`.
 
+### EIP Migration
+
+You can migrate the EIP if you need between accounts based on [this](https://forums.aws.amazon.com/thread.jspa?messageID=891493&#891493).
+
+You can also switch an ALB to use an EIP based on [this](https://www.terraform.io/docs/providers/aws/r/lb.html#specifying-elastic-ips).

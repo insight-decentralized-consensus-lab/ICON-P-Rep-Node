@@ -63,7 +63,7 @@ module "elb_http" {
 
   name = "elb-example"
 
-  subnets         = ["subnet-12345678", "subnet-87654321"]
+  subnets         = [""]
   security_groups = ["sg-12345678"]
   internal        = false
 

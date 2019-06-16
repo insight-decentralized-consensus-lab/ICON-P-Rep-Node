@@ -1,5 +1,6 @@
 #!/bin/bash
 # Install docker
+while [ -e /dev/xvdh ] ; do sleep 1 ; done
 apt-get update
 apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -

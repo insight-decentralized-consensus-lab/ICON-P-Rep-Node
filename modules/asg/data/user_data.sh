@@ -3,8 +3,8 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-
 REGION=${region}
+while [ -e /dev/xvdh ] ; do sleep 1 ; done
 
 export PATH=/usr/local/bin:$PATH;
 
