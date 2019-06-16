@@ -73,6 +73,17 @@ resource "aws_security_group_rule" "grpc_ingress" {
 }
 
 
+resource "aws_security_group_rule" "ssh_ingress" {
+  type = "ingress"
+  security_group_id = "${aws_security_group.grpc.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+  //  TODO: Lock this ^^ down
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+}
+
+
 //resource "aws_security_group" "p_rep" {
 //  name = "p-rep-sg"
 //  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"

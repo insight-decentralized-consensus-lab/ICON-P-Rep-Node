@@ -83,11 +83,20 @@ resource "aws_launch_configuration" "this" {
   user_data = "${file("${path.module}/data/user_data_ubuntu.sh")}"
   key_name = "${data.terraform_remote_state.keys.key_name}"
   security_groups = ["${data.terraform_remote_state.security_groups.security_group_ids}"]
+
+  associate_public_ip_address = true
+
+  ebs_block_device = {
+      device_name           = "/dev/xvdz"
+      volume_type           = "gp2"
+      volume_size           = "${var.volume_size}"
+      delete_on_termination = true
+  }
 }
 
 resource "aws_autoscaling_group" "this" {
   name = "${local.name}"
-  vpc_zone_identifier = ["${data.terraform_remote_state.vpc.private_subnets}"]
+  vpc_zone_identifier = ["${data.terraform_remote_state.vpc.public_subnets}"]
 
   desired_capacity   = 1
   max_size           = 1

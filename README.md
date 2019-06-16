@@ -63,6 +63,8 @@ Plan - Make sure it works. Will throw an error in some remote state references. 
 cd icon-dev/us-east-1
 terragrunt plan-all --terragrunt-source-update
 ```
+**If you get an error like, traversed to root, make sure your account.tfvars is present.**
+
 
 Apply - Download all the modules / providers 
 ```bash
@@ -144,4 +146,7 @@ if you have a live deployment and want to change the name of any folders / move 
 
 [Source](https://github.com/99designs/aws-vault/issues/266#issuecomment-404738205) - AWS does not allow IAM operations with an assumed role unless it's authenticated with an MFA
 
+### When using AWS named profiles, set proper env vars 
+
+Normally you only need to set `AWS_DEFAULT_PROFILE=xxx` to get into credentials but in terragrunt you also need to set `AWS_PROFILE=xxx` to get it to recogize the profile in `~/.aws/credentials`.
 

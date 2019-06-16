@@ -17,5 +17,5 @@ terragrunt = {
 }
 
 resource_group = "asg"
-volume_size = 50
-instance_type = "t2.micro"
+volume_size = 100
+instance_type = "c5n.large"
