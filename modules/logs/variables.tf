@@ -25,5 +25,6 @@ variable "s3_logs_path" {
   type = "string"
 }
 
-
+variable "log_bucket" {}
 variable "log_bucket_region" {}
+variable "log_location_prefix" {}

@@ -9,10 +9,11 @@ locals {
   tags = "${merge(var.tags, local.common_tags)}"
   terraform_state_bucket = "terraform-states-${data.aws_caller_identity.this.account_id}"
   terraform_state_region = "${var.terraform_state_region}"
+  log_bucket = "${var.log_bucket == "" ? join("-", local.name, data.aws_caller_identity.this.account_id) : var.log_bucket}"
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket        = "${local.name}-${data.aws_caller_identity.this.account_id}"
+  bucket        = "${local.log_bucket}"
   region        = "${var.log_bucket_region}"
   force_destroy = true
   //  TODO: FIX ^^ in prod
