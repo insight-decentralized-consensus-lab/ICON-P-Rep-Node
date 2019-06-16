@@ -44,7 +44,7 @@ terraform --version
 Run `init.sh` with your account id and select a region to put your terraform remote state files. 
 
 ```bash
-./init.sh <aws account id> <region where to put remote state> 
+./init.sh <aws account id> <region where to put remote state> <optional: local public key file>
 ```
 
 The bucket and a dynamo-db lock table will be created automatically from here on out and you should not have to 
