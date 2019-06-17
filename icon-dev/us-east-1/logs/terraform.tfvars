@@ -7,6 +7,7 @@ terragrunt = {
     path = "${find_in_parent_folders()}"
   }
 
+//  Leave these as this is going to be needed later when we set IAM roles within this module later.
 //  dependencies {
 //    paths = [
 //      "../vpc",
