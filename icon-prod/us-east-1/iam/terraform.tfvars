@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//dns"
+    source = "../../../modules//iam"
   }
 
   include {
@@ -8,5 +8,4 @@ terragrunt = {
   }
 }
 
-resource_group = "dns"
-
+resource_group = "iam"

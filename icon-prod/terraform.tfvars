@@ -5,7 +5,6 @@ terragrunt = {
 
       required_var_files = [
         "${get_parent_tfvars_dir()}/${path_relative_to_include()}/${find_in_parent_folders("region.tfvars")}",
-        "${get_parent_tfvars_dir()}/${path_relative_to_include()}/${find_in_parent_folders("environment.tfvars")}",
         "${get_parent_tfvars_dir()}/${path_relative_to_include()}/${find_in_parent_folders("account.tfvars")}"
       ]
   }

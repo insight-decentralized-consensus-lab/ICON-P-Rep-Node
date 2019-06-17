@@ -29,6 +29,24 @@ data "terraform_remote_state" "security_groups" {
   }
 }
 
+data "terraform_remote_state" "dns" {
+  backend = "s3"
+  config = {
+    bucket = "${local.terraform_state_bucket}"
+    key = "${join("/", list(var.region, "dns", "terraform.tfstate"))}"
+    region = "${var.terraform_state_region}"
+  }
+}
+
+data "terraform_remote_state" "logs" {
+  backend = "s3"
+  config = {
+    bucket = "${local.terraform_state_bucket}"
+    key = "${join("/", list(var.region, "logs", "terraform.tfstate"))}"
+    region = "${var.terraform_state_region}"
+  }
+}
+
 data "terraform_remote_state" "keys" {
   backend = "s3"
   config = {
@@ -103,4 +121,171 @@ resource "aws_autoscaling_group" "this" {
   min_size           = 1
 
   launch_configuration = "${aws_launch_configuration.this.id}"
+
+  target_group_arns = ["${aws_lb_target_group.grpc.arn}", "${aws_lb_target_group.rest.arn}"]
+}
+
+
+//                                                      Load Balancer
+
+resource "aws_lb" "this" {
+  load_balancer_type               = "application"
+  name                             = "${local.name}"
+  internal                         = false
+  security_groups                  = ["${data.terraform_remote_state.security_groups.security_group_ids}"]
+  subnets                          = ["${data.terraform_remote_state.vpc.public_subnets}"]
+  idle_timeout                     = 60
+  enable_http2                     = true
+
+  ip_address_type                  = "ipv4"
+
+  tags                             = "${merge(var.tags, map("Name", local.name))}"
+
+  access_logs {
+    enabled = true
+    bucket  = "${data.terraform_remote_state.logs.log_bucket}"
+//    This be a little weird but one is dynamic ^^ and one is not?
+    prefix  = "${var.log_location_prefix}"
+  }
+
+  timeouts {
+    create = "${var.load_balancer_create_timeout}"
+    delete = "${var.load_balancer_delete_timeout}"
+    update = "${var.load_balancer_update_timeout}"
+  }
+}
+
+resource "aws_lb_target_group" "rest" {
+  name                 = "${local.name}-rest"
+  vpc_id               = "${data.terraform_remote_state.vpc.vpc_id}"
+  port                 = "${var.rest_listener_port}"
+  protocol             = "HTTPS"
+
+  target_type          = ""
+// TODO: Autoscaledawtf....
+  health_check {
+    interval            = ""
+    path                = ""
+    port                = ""
+    healthy_threshold   = ""
+    unhealthy_threshold = ""
+    timeout             = ""
+    protocol            = ""
+    matcher             = ""
+  }
+
+  tags       = "${merge(var.tags, map("Name", join("-", list(local.name, "rest"))))}"
+
+  depends_on = ["aws_lb.this"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_lb_target_group" "grpc" {
+  name                 = "${local.name}-grpc"
+  vpc_id               = "${data.terraform_remote_state.vpc.vpc_id}"
+  port                 = "${var.grpc_listener_port}"
+  protocol             = "HTTPS"
+
+  target_type          = ""
+
+  tags       = "${merge(var.tags, map("Name", join("-", list(local.name, "grpc"))))}"
+
+  depends_on = ["aws_lb.this"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+//                                                Listener
+
+resource "aws_lb_listener" "rest" {
+  load_balancer_arn = "${aws_lb.this.arn}"
+  port              = "${var.rest_listener_port}"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${data.terraform_remote_state.dns.cert_arn}"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.rest.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_listener" "grpc" {
+  load_balancer_arn = "${aws_lb.this.arn}"
+  port              = "${var.grpc_listener_port}"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${data.terraform_remote_state.dns.cert_arn}"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.grpc.arn}"
+    type             = "forward"
+  }
+}
+
+//                                                Target Group
+
+resource "aws_alb_target_group" "rest" {
+  name     = "${local.name}-rest"
+  port     = "${var.rest_listener_port}"
+  protocol = "HTTPS"
+  vpc_id   = "${data.terraform_remote_state.vpc.vpc_id}"
+}
+
+resource "aws_alb_target_group" "grpc" {
+  name     = "${local.name}-gprc"
+  port     = "${var.grpc_listener_port}"
+  protocol = "HTTPS"
+  vpc_id   = "${data.terraform_remote_state.vpc.vpc_id}"
+}
+
+//                                                Listener Rule
+
+resource "aws_alb_listener_rule" "rest" {
+  listener_arn = "${aws_lb_listener.rest.arn}"
+  priority     = 99
+
+  action {
+    type = "forward"
+    target_group_arn = "${aws_lb_target_group.rest.arn}"
+  }
+
+  condition {
+    field  = "host-header"
+    values = ["${var.tracker_subdomain}.${var.root_domain_name}"]
+//    TODO: Validate ^^
+  }
+}
+
+resource "aws_alb_listener_rule" "grpc" {
+  listener_arn = "${aws_lb_listener.grpc.arn}"
+  priority     = 99
+
+  action {
+    type = "forward"
+    target_group_arn = "${aws_lb_target_group.grpc.arn}"
+  }
+
+  condition {
+    field  = "host-header"
+    values = ["${var.node_subdomain}.${var.root_domain_name}"]
+//    TODO: Validate ^^
+  }
+}
+
+//                                                Certificate
+
+resource "aws_lb_listener_certificate" "grpc" {
+  listener_arn    = "${aws_lb_listener.grpc.arn}"
+  certificate_arn   = "${data.terraform_remote_state.dns.cert_arn}"
+}
+
+resource "aws_lb_listener_certificate" "rest" {
+  listener_arn    = "${aws_lb_listener.rest.arn}"
+  certificate_arn   = "${data.terraform_remote_state.dns.cert_arn}"
 }

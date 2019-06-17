@@ -10,3 +10,6 @@
 - [Tendermint](https://github.com/tendermint/tendermint/)
     - [TF and Ansible Docs](https://github.com/tendermint/tendermint/blob/master/docs/networks/terraform-and-ansible.md
 )
+
+### Ops 
+

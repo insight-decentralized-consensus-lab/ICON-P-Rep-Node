@@ -89,7 +89,6 @@ resource "aws_acm_certificate_validation" "org-validation" {
 
 resource "aws_route53_zone" "root-icon" {
   name = "${var.icon_domain_name}."
-  private = true
 }
 
 //                                                    Node

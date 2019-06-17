@@ -12,6 +12,18 @@ TODO:
 - Service discovery 
     - Domain whitelisting 
 
+#### Status 
+
+`icon-dev` directory was just copied over to `icon-prod` and extraneous services removed. 
+Focus going forward will be on building out the dev cluster before pushing changes to prod
+which for the time being will be a single node. 
+
+- `icon-dev`
+    - Building ASG 
+    - Deployment failing 
+- `icon-prod`
+    - Deploying 
+
 ## Pre-Deployment Check List 
 
 - Initialize account

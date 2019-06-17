@@ -1,9 +1,7 @@
 aws_region = "us-east-1"
-cluster_id = "icon"
-
 region = "us-east-1"
-environment = "dev"
 
+cluster_id = "icon"
 
 //  Single
 azs = ["us-east-1a"]
@@ -21,12 +19,9 @@ log_bucket = ""
 log_bucket_region = "us-east-1"
 log_location_prefix = "logs"
 
-tags = {
-  Environment = "dev"
-}
 
 icon_domain_name = "solidwallet.io"
 node_subdomain = "net"
 tracker_subdomain = "tracker"
 root_domain_name = "solidwallet.io"
-subdomain = "insight"
+org_subdomain = "insight"

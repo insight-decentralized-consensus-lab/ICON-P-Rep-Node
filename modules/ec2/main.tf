@@ -60,8 +60,9 @@ resource "aws_eip" "this" {
   instance = "${aws_instance.this.id}"
 
   lifecycle {
-      prevent_destroy = "true"
+      prevent_destroy = "false"
   }
+//  TODO: Change this in prod ^^
 }
 
 resource "aws_instance" "this" {
@@ -86,5 +87,6 @@ resource "aws_instance" "this" {
 //      volume_size           = "${var.volume_size}"
 //      delete_on_termination = true
 //  }
+//  TODO: Consider ephemeral volumes and how they might need to be scaled behind load balancer
 }
 
