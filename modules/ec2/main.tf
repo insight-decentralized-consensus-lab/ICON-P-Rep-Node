@@ -38,28 +38,6 @@ data "terraform_remote_state" "keys" {
   }
 }
 
-//data "aws_ami" "amazon-linux-2" {
-//  most_recent = true
-//  owners = ["amazon"]
-//
-//  filter {
-//    name   = "owner-alias"
-//    values = ["amazon"]
-//  }
-//
-//  filter {
-//    name   = "name"
-//    values = ["amzn2-ami-hvm*"]
-//}
-//}
-
-//resource "template_file" "user_data" {
-//  template = "${file("${path.module}/data/user_data.sh")}"
-//  vars {
-//    region = "${var.region}"
-//  }
-//}
-
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -76,37 +54,9 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-//resource "aws_launch_configuration" "this" {
-//  name          = "web_config"
-//  image_id      = "${data.aws_ami.ubuntu.id}"
-//  instance_type = "${var.instance_type}"
-//  user_data = "${file("${path.module}/data/user_data_ubuntu.sh")}"
-//  key_name = "${data.terraform_remote_state.keys.key_name}"
-//  security_groups = ["${data.terraform_remote_state.security_groups.security_group_ids}"]
-//
-//  associate_public_ip_address = true
-//
-//  ebs_block_device = {
-//      device_name           = "/dev/xvdz"
-//      volume_type           = "gp2"
-//      volume_size           = "${var.volume_size}"
-//      delete_on_termination = true
-//  }
-//}
-//
-//resource "aws_autoscaling_group" "this" {
-//  name = "${local.name}"
-//  vpc_zone_identifier = ["${data.terraform_remote_state.vpc.public_subnets}"]
-//
-//  desired_capacity   = 1
-//  max_size           = 1
-//  min_size           = 1
-//
-//  launch_configuration = "${aws_launch_configuration.this.id}"
-//}
 
 resource "aws_eip" "this" {
-  vpc = "${data.terraform_remote_state.vpc.vpc_id}"
+  vpc = true
   instance = "${aws_instance.this.id}"
 
   lifecycle {
@@ -125,10 +75,16 @@ resource "aws_instance" "this" {
   security_groups = ["${data.terraform_remote_state.security_groups.security_group_ids}"]
 
   root_block_device = {
-      device_name           = "/dev/xvdz"
       volume_type           = "gp2"
       volume_size           = "${var.volume_size}"
       delete_on_termination = true
   }
+
+//  ebs_block_device = {
+//      device_name           = "/dev/xvdz"
+//      volume_type           = "gp2"
+//      volume_size           = "${var.volume_size}"
+//      delete_on_termination = true
+//  }
 }
 

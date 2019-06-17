@@ -104,7 +104,7 @@ resource "aws_lb_target_group" "rest" {
     matcher             = ""
   }
 
-  tags       = "${merge(var.tags, map("Name", join("-", local.name, "rest")))}"
+  tags       = "${merge(var.tags, map("Name", join("-", list(local.name, "rest"))))}"
 
   depends_on = ["aws_lb.this"]
 
@@ -121,7 +121,7 @@ resource "aws_lb_target_group" "grpc" {
 
   target_type          = ""
 
-  tags       = "${merge(var.tags, map("Name", join("-", local.name, "grpc")))}"
+  tags       = "${merge(var.tags, map("Name", join("-", list(local.name, "grpc"))))}"
 
   depends_on = ["aws_lb.this"]
 
