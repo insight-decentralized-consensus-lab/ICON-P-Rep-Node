@@ -16,5 +16,7 @@ terragrunt = {
 }
 
 resource_group = "ec2"
-volume_size = 100
-instance_type = "c5n.large"
+instance_type = "c5.large"
+root_volume_size = 8
+volume_path = "/dev/sdf"
+volume_dir = ""

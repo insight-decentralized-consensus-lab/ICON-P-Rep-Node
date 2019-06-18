@@ -1,10 +1,9 @@
 aws_region = "us-east-1"
+region = "us-east-1"
 cluster_id = "icon"
 
-region = "us-east-1"
-
-//  Single
-azs = ["us-east-1a"]
+//  Single AZ
+azs = ["us-east-1d"]
 cidr = "10.10.0.0/16"
 private_subnets = ["10.10.0.0/20"]
 public_subnets = ["10.10.64.0/20"]  // Unused
