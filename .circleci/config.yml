@@ -1,0 +1,15 @@
+# This code is licensed from CircleCI to the user under the MIT license. See
+# https://circleci.com/orbs/registry/licensing for details.
+# Source: https://circleci.com/orbs/registry/orb/kchultman/terragrunt#jobs-apply_infrastructure
+version: 2.1
+
+orbs:
+  terragrunt: kchultman/terragrunt@0.1.12
+
+workflows:
+  build:
+    jobs:
+      - terragrunt/checkout
+      - terragrunt/validate_infrastructure
+      - terragrunt/plan_infrastructure
+      - terragrunt/apply_infrastructure
