@@ -38,6 +38,15 @@ data "terraform_remote_state" "keys" {
   }
 }
 
+data "terraform_remote_state" "ebs" {
+  backend = "s3"
+  config = {
+    bucket = "${local.terraform_state_bucket}"
+    key = "${join("/", list(var.region, "ebs", "terraform.tfstate"))}"
+    region = "${var.terraform_state_region}"
+  }
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -60,10 +69,13 @@ resource "aws_eip" "this" {
   instance = "${aws_instance.this.id}"
 
   lifecycle {
-      prevent_destroy = "false"
+      prevent_destroy = "true"
   }
-//  TODO: Change this in prod ^^
 }
+
+//data "aws_ebs_volume" "this" {
+//  volume_id = "${data.terraform_remote_state.ebs.id}"
+//}
 
 resource "aws_instance" "this" {
   ami = "${data.aws_ami.ubuntu.id}"
@@ -77,16 +89,48 @@ resource "aws_instance" "this" {
 
   root_block_device = {
       volume_type           = "gp2"
-      volume_size           = "${var.volume_size}"
+      volume_size           = "${var.root_volume_size}"
       delete_on_termination = true
   }
-
 //  ebs_block_device = {
 //      device_name           = "/dev/xvdz"
 //      volume_type           = "gp2"
-//      volume_size           = "${var.volume_size}"
+//      volume_size           = "${var.ebs_volume_size}"
 //      delete_on_termination = true
 //  }
 //  TODO: Consider ephemeral volumes and how they might need to be scaled behind load balancer
 }
 
+resource "aws_volume_attachment" "this" {
+  device_name = "${var.volume_path}"
+  volume_id   = "${data.terraform_remote_state.ebs.volume_id}"
+//  volume_id = "${data.aws_ebs_volume.this.id}"
+  instance_id = "${aws_instance.this.id}"
+
+  provisioner "remote-exec" {
+    script = "${file("${path.module}/data/attach-data-volume.sh")}"
+    connection {
+      host = "${aws_instance.this.public_ip}"
+    }
+  }
+
+  provisioner "remote-exec" {
+    script = "${file("${path.module}/data/run-icon-docker-compose.sh")}"
+    connection {
+      host = "${aws_instance.this.public_ip}"
+    }
+  }
+} 
+
+//resource "aws_ebs_volume" "this" {
+//  availability_zone = "${var.azs[0]}"
+//  size              = 100
+//  type = "gp2"
+//  tags = "${merge(local.tags, map("Name", "ebs-main"))}"
+//
+//  lifecycle {
+//      prevent_destroy = "false"
+//  }
+//
+//  count = 0
+//}

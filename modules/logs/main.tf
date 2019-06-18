@@ -48,3 +48,27 @@ resource "aws_s3_bucket_policy" "this" {
 }
 POLICY
 }
+
+
+provider "aws" {
+  region = "${var.region}"
+}
+
+terraform {
+  backend "s3" {}
+}
+
+//resource "aws_cloudwatch_log_group" "this_dmesg" {
+//  name              = "/var/log/dmesg"
+//  retention_in_days = 30
+//}
+//
+//resource "aws_cloudwatch_log_group" "this_docker" {
+//  name              = "/var/log/docker"
+//  retention_in_days = 30
+//}
+//
+//resource "aws_cloudwatch_log_group" "this_messages" {
+//  name              = "/var/log/messages"
+//  retention_in_days = 30
+//}
