@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Mount EBS
 # Source: https://github.com/hashicorp/terraform/issues/2740#issuecomment-375144680
 EC2_INSTANCE_ID=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id || die \"wget instance-id has failed: $?\")

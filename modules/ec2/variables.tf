@@ -24,3 +24,7 @@ variable "terraform_state_region" {
 
 variable "root_volume_size" {}
 variable "volume_path" {}
+
+variable "local_private_key" {}
+
+variable "efs_directory" {}

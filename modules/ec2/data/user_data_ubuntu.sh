@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
-apt-get update
+apt-get update -y
 apt-get upgrade -y
 apt-get dist-upgrade
 apt-get upgrade -y linux-aws
-apt-get install awscli
+apt-get install -y awscli
 
 
 # Cloudwatch
@@ -28,30 +28,28 @@ curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compos
 chmod +x /usr/local/bin/docker-compose
 
 # Pushed to post ebs mount remote-exec
-#
-#cat <<EOF >/home/ubuntu/docker-compose.yml
-#version: '3'
-#services:
-#   prep:
-#      image: 'iconloop/prep-node:1905292100xdd3e5a'
-#      network_mode: host
-#      environment:
-#         LOOPCHAIN_LOG_LEVEL: "SPAM"
-#         DEFAULT_PATH: "/data/loopchain"
-#         SERVICE: "jinseong"
-#         LOG_OUTPUT_TYPE: "file"
-#         TIMEOUT_FOR_LEADER_COMPLAIN : 120
-#         MAX_TIMEOUT_FOR_LEADER_COMPLAIN : 600
-#      volumes:
-#         - /opt/data:/data
-#      ports:
-#         - 9000:9000
-#         - 7100:7100
-#EOF
+
+cat <<EOF >/home/ubuntu/docker-compose.yml
+version: '3'
+services:
+   prep:
+      image: 'iconloop/prep-node:1905292100xdd3e5a'
+      network_mode: host
+      environment:
+         LOOPCHAIN_LOG_LEVEL: "SPAM"
+         DEFAULT_PATH: "/data/loopchain"
+         SERVICE: "jinseong"
+         LOG_OUTPUT_TYPE: "file"
+         TIMEOUT_FOR_LEADER_COMPLAIN : 120
+         MAX_TIMEOUT_FOR_LEADER_COMPLAIN : 600
+      volumes:
+         - /opt/data:/data
+      ports:
+         - 9000:9000
+         - 7100:7100
+EOF
 #/usr/local/bin/docker-compose -f /home/ubuntu/docker-compose.yml up -d
-#
 #       Logging
-#
 #cat<<EOF> /etc/systemd/system/awslogs.service
 #[Unit]
 #Description=Service for CloudWatch Logs agent

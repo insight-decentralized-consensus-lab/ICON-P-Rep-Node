@@ -14,13 +14,14 @@ resolv_conf:
 
 users:
 - name: ubuntu
-  lock_passwd: true
+  lock_passwd: false
   shell: /bin/bash
   ssh-authorized-keys:
-    - "${ssh_public_key}"
+    - "$${ssh_public_key}"
   groups:
     - ubuntu
     - docker
+    - users
   sudo:
     - ALL=(ALL) NOPASSWD:ALL
 
@@ -30,6 +31,7 @@ packages:
   - curl
   - gnupg-agent
   - software-properties-common
+  - amazon-efs-utils
 
 runcmd:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -41,13 +43,7 @@ runcmd:
   - file_system_id_01=fs-12345678
   - efs_directory=/mnt/efs
   - mkdir -p ${efs_directory}
-  - echo "${file_system_id_01}:/ ${efs_directory} efs tls,_netdev" >> /etc/fstab
+  - echo "$${file_system_id}:/ ${efs_directory} efs tls,_netdev" >> /etc/fstab
   - mount -a -t efs defaults
-
-packages:
-- amazon-efs-utils
-
-runcmd:
-
 
 final_message: "The system is finally up, after $UPTIME seconds"
