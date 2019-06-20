@@ -11,7 +11,7 @@ variable "tags" {
   type = "map"
 }
 
-
+variable "cidr" {}
 variable "private_subnets" {
   type = "list"
 }
@@ -19,6 +19,4 @@ variable "private_subnets" {
 variable "terraform_state_region" {
   description = "AWS region used for Terraform states"
 }
-
-variable "ebs_volume_size" {}
 
