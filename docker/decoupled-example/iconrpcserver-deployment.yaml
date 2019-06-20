@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.18.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: iconrpcserver
+  name: iconrpcserver
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: iconrpcserver
+    spec:
+      containers:
+      - image: iconloop/prep-node:1905292100xdd3e5a
+        name: prep-node
+        ports:
+        - containerPort: 9000
+        resources: {}
+        volumeMounts:
+        - mountPath: /data
+          name: iconrpcserver-claim0
+      restartPolicy: Always
+      volumes:
+      - name: iconrpcserver-claim0
+        persistentVolumeClaim:
+          claimName: iconrpcserver-claim0
+status: {}

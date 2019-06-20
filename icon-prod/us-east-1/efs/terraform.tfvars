@@ -1,6 +1,6 @@
 terragrunt = {
   terraform {
-    source = "../../../modules//ec2"
+    source = "../../../modules//efs"
   }
 
   include {
@@ -8,14 +8,8 @@ terragrunt = {
   }
 
   dependencies {
-    paths = [
-      "../vpc",
-      "../security_groups",
-      "../keys"]
+    paths = ["../vpc"]
   }
 }
 
-resource_group = "ec2"
-ebs_volume_size = 100
-root_volume_size = 8
-volume_path = "/dev/nvme1n1"
+resource_group = "efs"

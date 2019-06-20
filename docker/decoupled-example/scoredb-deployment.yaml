@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.18.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: scoredb
+  name: scoredb
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: scoredb
+    spec:
+      containers:
+      - image: icon/icon-score-postgres
+        name: prep-node
+        ports:
+        - containerPort: 5432
+        resources: {}
+        volumeMounts:
+        - mountPath: /data
+          name: scoredb-claim0
+      restartPolicy: Always
+      volumes:
+      - name: scoredb-claim0
+        persistentVolumeClaim:
+          claimName: scoredb-claim0
+status: {}

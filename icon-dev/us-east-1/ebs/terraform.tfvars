@@ -15,7 +15,7 @@ terragrunt = {
   }
 }
 
-resource_group = "ec2"
+resource_group = "ebs"
 ebs_volume_size = 100
 root_volume_size = 8
-volume_path = "/dev/nvme1n1"
+volume_path = "/dev/nme1n1"

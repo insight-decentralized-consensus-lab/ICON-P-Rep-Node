@@ -9,14 +9,16 @@ terragrunt = {
 
   dependencies {
     paths = [
-      "../vpc",
+      "../efs",
       "../security_groups",
       "../keys"]
   }
 }
 
 resource_group = "ec2"
-instance_type = "c5.large"
-root_volume_size = 8
+instance_type = "m4.large"
+root_volume_size = 20
 volume_path = "/dev/sdf"
 volume_dir = ""
+
+efs_directory = "/opt/data"
